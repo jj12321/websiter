@@ -1,7 +1,14 @@
 from flask import Flask, render_template, url_for, flash, redirect
 from forms import RegistrationForm, LogInForm
+from flask_sqlalchemy import SQLAlchemy
+from datetime import datetime
 
 app = Flask(__name__)
+app.config['SECRET_KEY'] = "1f1b7ab499afc8179f8d9a908f5ccc82"
+app.config['SQLALCHEMY_DATABASE_URI'] = "sqlite:///site.db"
+db = SQLAlchemy(app)
+from models import User, Post
+
 posts = [
     {
         'author': 'Anne Hathaway',
@@ -16,8 +23,6 @@ posts = [
         'date_posted': 'April 21, 2018'
     }
 ]
-
-app.config['SECRET_KEY'] = "1f1b7ab499afc8179f8d9a908f5ccc82"
 
 @app.route("/")
 def home():
@@ -35,14 +40,14 @@ def register():
         return redirect(url_for('home'))
     return render_template("register.html", title = "Sign Up", form = form)
 
-@app.route("/login")
+@app.route("/login", methods = ['GET', 'POST'])
 def login():
     form = LogInForm()
     if form.validate_on_submit():
-        if form.email.data == "admin@blog.com" and form.password.data == "Password":
+        if form.email.data == "admin@blog.com" and form.password.data == "password":
             flash("You have been logged in", "Success!")
             return redirect(url_for('home'))
-    return render_template("login.html", title = "Log In")
+    return render_template("login.html", title = "Log In", form = form)
 
 
 if __name__ == "__main__":
